@@ -1,12 +1,11 @@
 package urlshort
 
 import (
+	"log"
 	"net/http"
 
 	yaml "gopkg.in/yaml.v2"
 )
-
-// import "gopkg.in/yaml.v2"
 
 func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -52,4 +51,27 @@ func buildUrlMap(purls []pathUrl) map[string]string {
 		pathsToUrls[purl.Path] = purl.URL
 	}
 	return pathsToUrls
+}
+
+// DB handler
+func DBHandler(others http.HandlerFunc) (http.HandlerFunc, error) {
+	pgxDB, err := NewPostgreSQLpgx()
+	if err != nil {
+		log.Fatalf("Could not initialize Database connection using pgx %s", err)
+		return others, err
+	}
+
+	defer pgxDB.Close()
+
+	purls, err := pgxDB.AllUrls()
+	if err != nil {
+		log.Fatalf("Could not query AllUrls: %s", err)
+		return others, err
+	}
+
+	pathsToUrls := map[string]string{}
+	for _, purl := range purls {
+		pathsToUrls[purl.Name] = purl.Url
+	}
+	return MapHandler(pathsToUrls, others), nil
 }

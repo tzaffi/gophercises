@@ -3,11 +3,14 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/tzaffi/gophercises/urlshort"
 )
 
 func main() {
+	os.Setenv("DATABASE_URL", "postgres://root:root@localhost:5432/test_db?sslmode=disable")
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Hello, world!")
@@ -40,7 +43,12 @@ func main() {
 		panic(err)
 	}
 
+	dbHandler, err := urlshort.DBHandler(yamlHandler)
+	if err != nil {
+		panic(err)
+	}
+
 	port := ":8080"
 	fmt.Printf("Starting the server on :%s\n", port)
-	http.ListenAndServe(port, yamlHandler)
+	http.ListenAndServe(port, dbHandler)
 }
