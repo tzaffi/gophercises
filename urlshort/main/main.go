@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/tzaffi/urlshort"
+	"github.com/tzaffi/gophercises/urlshort"
 )
 
 func main() {
@@ -25,15 +25,16 @@ func main() {
 	yaml := `
 - path: /vcgotags
   url: https://www.reddit.com/r/golang/comments/hpaw4b/how_to_quickly_create_struct_fields_and_their
-- path: /zblog
+- path: /zblog2
   url: http://grunschblog.blogspot.com
-- path: /zwitter
+- path: /zwitter2
   url: https://twitter.com/tzaffi
-- path: /zinkedin
+- path: /zinkedin2
   url: https://www.linkedin.com/in/zephgrunschlag
-- path: /zithub
+- path: /zithub2
   url: https://github.com/tzaffi
 `
+
 	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler)
 	if err != nil {
 		panic(err)
